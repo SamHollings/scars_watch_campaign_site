@@ -39,7 +39,7 @@ def logout():
 @app.route('/hello/')
 @app.route('/hello/<name>')
 def hello(name=None):
-    return render_template('hello.html', person=name)
+    return render_template('hello.html', person=name, image_url='/static/red scar region.png')
 
 @app.route('/user/<username>')
 def profile(username):
