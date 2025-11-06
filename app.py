@@ -1,24 +1,62 @@
-from flask import Flask
-from flask import request
+from flask import Flask, request, url_for, render_template, redirect, session
 from markupsafe import escape
 
 app = Flask(__name__)
 
-@app.route("/")
-def hello_world():
-    name  = request.args.get("name", "Flask")
-    return f"<p>Hello {escape(name)}</p>"
+# @app.route("/")
+# def index():
+#     name  = request.args.get("name", "Flask")
+#     return f"<p>Hello {escape(name)}</p>"
 
-@app.route('/hello')
-def hello():
-    return  'Hello, world'
+@app.route('/')
+def index():
+    if 'username' in session:
+        return f'Logged in as {session["username"]}'
+    return 'You are not logged in'
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        session['username'] = request.form['username']
+        return redirect(url_for('index'))
+    return '''
+        <form method="post">
+            <p><input type=text name=username>
+            <p><input type=submit value=Login>
+        </form>
+    '''
+
+@app.route('/logout')
+def logout():
+    # remove the username from the session if it's there
+    session.pop('username', None)
+    return redirect(url_for('index'))
+
+# @app.route('/hello')
+# def hello():
+#     return  'Hello, world'
+
+@app.route('/hello/')
+@app.route('/hello/<name>')
+def hello(name=None):
+    return render_template('hello.html', person=name)
 
 @app.route('/user/<username>')
-def show_user_profile(username):
-    # show the uswer profile for that user
+def profile(username):
+    # show the user profile for that user
     return f'user {escape(username)}'
 
 @app.route('/projects/')# doesn't work? perhaps needs pages under it...
 def projects():
     return 'The projects page'
+
+
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+
+
+with app.test_request_context():
+    print(url_for('index'))
+    print(url_for('projects'))
+    print(url_for('profile', username='sam'))
+
