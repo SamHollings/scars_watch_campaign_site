@@ -10,9 +10,15 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    if 'username' in session:
-        return f'Logged in as {session["username"]}'
-    return 'You are not logged in'
+    # if 'username' in session:
+    #     return f'Logged in as {session["username"]}'
+    
+    username = session.get("username",None)
+    return render_template('red_scar_overview.html', person=username, image_url='/static/red scar region.png')
+
+@app.route('/scars_watch')
+def scars_watch():
+    return render_template('scars_watch.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -36,10 +42,10 @@ def logout():
 # def hello():
 #     return  'Hello, world'
 
-@app.route('/hello/')
-@app.route('/hello/<name>')
-def hello(name=None):
-    return render_template('hello.html', person=name, image_url='/static/red scar region.png')
+# @app.route('/hello/')
+# @app.route('/hello/<name>')
+# def hello(name=None):
+#     return render_template('hello.html', person=name, image_url='/static/red scar region.png')
 
 @app.route('/user/<username>')
 def profile(username):

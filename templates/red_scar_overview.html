@@ -1,0 +1,23 @@
+<!doctype html>
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<title>Scars Watch Campaign</title>
+{% if person %}
+  <h1>Welcome back, Commander {{ person }}!</h1>
+{% else %}
+  <h1>The Red Scar Region</h1>
+{% endif %}
+<body>
+    <div class="image-container">
+      <img src="{{ image_url }}" alt="Image from external source", alt="Map of the Red Scar Region", usemap="#systemmap">
+      
+      <span class="image-label" id="scars-watch-label">Scars Watch</span></span>
+
+      <map name = "systemmap">
+        <area shape = "circle" coords="447 424 20", href="{{ url_for('scars_watch') }}"
+      </map>
+      
+    </div> 
+
+</body>
