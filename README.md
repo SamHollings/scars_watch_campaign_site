@@ -13,4 +13,13 @@ Testing out how to deploy a dashboard to AWS
 
 See the website at: `localhost:5000`
 
-# Test
+# Dev
+
+To run the flask app on it's inbuilt dev server:
+`python -m flask run`
+
+To run the flask app on the gunicorn server:
+`python -m gunicorn --workers=3 --bind 0.0.0.0:8000 app:app --daemon`
+
+you can kill the gunicorn server with:
+`pkill -f gunicorn`
