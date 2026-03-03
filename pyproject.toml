@@ -1,0 +1,58 @@
+[build-system]
+requires = [
+    "setuptools>=64", 
+    #"setuptools-scm>=8"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scars_watch_campaign_site"
+version = "0.1.0a1"
+description = "Personal project to develop a Warhammer 40k campaign site."
+authors = [{name = "Sam Hollings"}, {name = "Adam Hollings"}]
+readme = "README.md"
+keywords = ["Flask"]
+license = {file = "LICENCE.md"}
+classifiers = ["Programming Language :: Python :: 3"]
+dependencies = [
+    "flask",
+    "python-dotenv", 
+    "gunicorn",
+    "black"
+]
+requires-python = ">=3.6"
+# dynamic = ['version'] - can't get this to work in github actions with setuptools-scm as the github action only pulls the latest commit and no tag info
+
+[project.urls]
+Repository = "https://github.com/SamHollings/scars_watch_campaign_site"
+Issues = "https://github.com/SamHollings/scars_watch_campaign_site/issues"
+
+# `isort` configurations
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$' # perhaps remove this
+extend-exclude = '''
+/(
+  # Specific directories to ignore
+  tests/data/
+  | profiling/
+)
+'''
+
+# `pytest` configurations
+[tool.pytest.ini_options]
+addopts = [
+    "-v",
+    "--doctest-modules",
+    "--doctest-report=cdiff",
+    "--doctest-continue-on-failure"
+]
+doctest_optionflags = "NORMALIZE_WHITESPACE"
+testpaths = [
+    "tests",
+    "src"
+]
