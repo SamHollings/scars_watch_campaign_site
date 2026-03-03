@@ -18,7 +18,18 @@ dependencies = [
     "flask",
     "python-dotenv", 
     "gunicorn",
-    "black"
+    "black",
+    "pandas",
+    "jupyter",
+    "matplotlib",
+    "numpy",
+    "scikit-learn",
+    "langchain",
+    "langchain-classic",
+    "langchain-google-genai",
+    "google-genai",
+    "dotenv",
+    "streamlit"
 ]
 requires-python = ">=3.6"
 # dynamic = ['version'] - can't get this to work in github actions with setuptools-scm as the github action only pulls the latest commit and no tag info
