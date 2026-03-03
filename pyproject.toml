@@ -12,7 +12,7 @@ description = "Personal project to develop a Warhammer 40k campaign site."
 authors = [{name = "Sam Hollings"}, {name = "Adam Hollings"}]
 readme = "README.md"
 keywords = ["Flask"]
-license = {file = "LICENCE.md"}
+license-files = ["LICENSE"]
 classifiers = ["Programming Language :: Python :: 3"]
 dependencies = [
     "flask",

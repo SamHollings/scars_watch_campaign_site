@@ -1,0 +1,15 @@
+flask
+python-dotenv
+gunicorn
+black
+pandas
+jupyter
+matplotlib
+numpy
+scikit-learn
+langchain
+langchain-classic
+langchain-google-genai
+google-genai
+dotenv
+streamlit
