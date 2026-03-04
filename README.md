@@ -1,4 +1,6 @@
 # Scars Watch Campaign
+[![CI](https://github.com/samhollings/scars_watch_campaign_site/actions/workflows/ci.yml/badge.svg)](https://github.com/samhollings/scars_watch_campaign_site/actions/workflows/ci.yml) 
+![Static Badge](https://img.shields.io/badge/status-development-blue) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 This is a personal project to make an interactive chat website, which can make background for our ongoing campaign set in the Warhammer 40k universe.
 
