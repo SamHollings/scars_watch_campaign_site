@@ -13,3 +13,4 @@ langchain-google-genai
 google-genai
 dotenv
 streamlit
+pytest
