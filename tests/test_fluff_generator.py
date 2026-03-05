@@ -9,79 +9,64 @@
 #     at.run()
 #     assert not at.exception
 
-
 import pytest
+from streamlit.testing.v1 import AppTest
 from unittest.mock import MagicMock, patch
-import streamlit as st
 import src.fluff_generator as fluff_generator
 
 
-# We mock the imports that interact with external APIs or heavy logic
-@pytest.fixture
-def mock_dependencies(mocker):
-    mocker.patch('model_funcs.gemini_model')
-    mocker.patch('retrieval.extract_relevant_history', return_value="Ancient War history")
-    mocker.patch('streamlit_utils.display_messages')
-    mocker.patch('st.rerun') # Prevent actual rerun during tests
-
-def test_session_state_initialization(mocker):
-    """Test if session state is correctly seeded with system/AI messages."""
-    # Clear session state for a clean test
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
+def test_app_initialization():
+    """Test that the app loads and initializes the chat history."""
+    at = AppTest.from_file("fluff_generator.py").run()
     
-    # Mock the prompts
-    mocker.patch('prompts.system_message', "System Prompt")
-    mocker.patch('prompts.ai_message', "AI Greeting")
-
-    # Manually trigger the logic that mimics the app start
-    if "messages" not in st.session_state:
-        st.session_state.messages = ["System Prompt", "AI Greeting"]
+    # Check that the title is correct
+    assert at.title[0].value == "Warhammer 40k Story Generator"
     
-    assert len(st.session_state.messages) == 2
-    assert st.session_state.messages[0] == "System Prompt"
+    # Check that the session state initialized the 2 default messages
+    # (system_message and ai_message)
+    assert len(at.session_state.messages) == 2
 
-def test_model_invocation_structure(mocker):
-    """Test if the model is called with the correctly formatted history + RAG context."""
+@patch("model_funcs.gemini_model")
+@patch("retrieval.extract_relevant_history")
+def test_user_input_triggers_llm(mock_retrieval, mock_model_func):
+    """Test that typing in chat_input triggers the RAG and LLM logic."""
     
-    # 1. Setup Mock Model
+    # 1. Setup Mocks
+    mock_retrieval.return_value = "The Ultramarines are defending Ultramar."
+    
     mock_model = MagicMock()
     mock_response = MagicMock()
-    mock_response.content = "The Space Marines won the battle."
+    mock_response.content = "For the Emperor!"
     mock_model.invoke.return_value = mock_response
-    mocker.patch('model_funcs.gemini_model', return_value=mock_model)
-    
-    # 2. Setup Retrieval Mock
-    mocker.patch('retrieval.extract_relevant_history', return_value="Context about Orks")
-    
-    # 3. Prepare Session State
-    st.session_state.messages = [{"role": "user", "content": "Tell me a story"}]
-    input_text = "Submit battle report"
-    
-    # 4. Simulate the logic inside the 'if user_message['content']:' block
-    # We construct the input exactly like your code: messages + [(content=...)]
-    rag_context = f"The relevant history is: Context about Orks"
-    
-    # Execute the mock call
-    response = mock_model.invoke(st.session_state.messages + [{"role": "system", "content": rag_context}])
-    
-    # 5. Assertions
-    assert response.content == "The Space Marines won the battle."
-    mock_model.invoke.assert_called_once()
-    # Check if the last part of the call included our RAG context
-    args, _ = mock_model.invoke.call_args
-    assert "Context about Orks" in args[0][-1]["content"]
+    mock_model_func.return_value = mock_model
 
-def test_error_handling_on_model_failure(mocker):
-    """Verify the app handles LLM exceptions gracefully."""
+    # 2. Start the App
+    at = AppTest.from_file("fluff_generator.py").run()
+
+    # 3. Simulate user typing into the chat input
+    at.chat_input[0].set_value("A new battle report: Orks vs Humans").run()
+
+    # 4. Assertions
+    # Check if retrieval was called with our input
+    mock_retrieval.assert_called_with("A new battle report: Orks vs Humans")
+    
+    # Check if the UI updated with the AI response
+    # (Note: index might vary based on your UI layout)
+    assert "For the Emperor!" in at.markdown[1].value 
+    
+    # Check if message was added to session state
+    # 2 initial + 1 user + 1 assistant = 4
+    assert len(at.session_state.messages) == 4
+
+def test_error_handling_ui(mock_model_func):
+    """Test that the app shows an error message if the model fails."""
     mock_model = MagicMock()
-    mock_model.invoke.side_effect = Exception("API Down")
-    mocker.patch('model_funcs.gemini_model', return_value=mock_model)
+    mock_model.invoke.side_effect = Exception("Chaos Corruption (API Error)")
+    mock_model_func.return_value = mock_model
     
-    response_text = ""
-    try:
-        mock_model.invoke([])
-    except Exception:
-        response_text = "Error generating response."
+    at = AppTest.from_file("fluff_generator.py").run()
+    at.chat_input[0].set_value("Test Error").run()
     
-    assert response_text == "Error generating response."
+    # Check that the error element appeared in the UI
+    assert len(at.error) > 0
+    assert "Chaos Corruption" in at.error[0].value
