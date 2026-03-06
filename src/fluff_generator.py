@@ -22,7 +22,7 @@ Assets:
 """
 
 import streamlit as st
-from langchain.messages import AIMessage, HumanMessage, SystemMessage
+from langchain.messages import AIMessage#, HumanMessage, SystemMessage
 import model_funcs
 import prompts
 import streamlit_utils
@@ -43,8 +43,6 @@ if "messages" not in st.session_state:
     st.session_state.messages = [system_message, ai_message]
 
 streamlit_utils.display_messages()
-
-from langchain.messages import AIMessage, HumanMessage, SystemMessage
 
 # get new input
 input_text = st.chat_input("Ask me anything about the ongoing story, or submit a battle report to generate post-battle fluff.")
@@ -73,7 +71,7 @@ if user_message['content']:
 
             model = model_funcs.gemini_model()
 
-            response = model.invoke(st.session_state.messages + [HumanMessage(content=(f"The relevant history is: {retrieval.extract_relevant_history(input_text)}"))])
+            response = model.invoke(st.session_state.messages + [(content=(f"The relevant history is: {retrieval.extract_relevant_history(input_text)}"))])
             response_text = response.content
 
             print(response_text)
