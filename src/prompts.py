@@ -15,5 +15,5 @@ system_message = {
 
 ai_message = {
             "role": "assistant", 
-            "content": "Hi! I'm your Warhammer 40k story generator. Ask me anything about the ongoing story, or submit a battle report to generate post-battle fluff."
+            "content": "Greetings Watchmaster! I'm your faithful Warhammer 40k story generator. Ask me anything about the ongoing story, or submit a battle report to generate post-battle fluff."
         }

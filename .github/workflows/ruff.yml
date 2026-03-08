@@ -1,0 +1,25 @@
+name: Ruff
+on:
+  push:
+   branches:
+   - main
+  pull_request:
+   branches:
+   - main
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Ruff Check (Linting)
+        uses: astral-sh/ruff-action@v3
+        with:
+          # This runs 'ruff check' by default
+          args: "check"
+
+      - name: Run Ruff Format (Formatting)
+        uses: astral-sh/ruff-action@v3
+        with:
+          # This checks if the code is correctly formatted
+          args: "format --check"
