@@ -23,10 +23,10 @@ Assets:
 
 import streamlit as st
 from langchain.messages import AIMessage, HumanMessage, SystemMessage
-import model_funcs
-import prompts
-import streamlit_utils
-import retrieval
+import src.model_funcs as model_funcs
+import src.prompts as prompts
+import src.streamlit_utils as streamlit_utils
+import src.retrieval as retrieval
 
 DEBUG_MODE = True
 
