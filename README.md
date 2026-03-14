@@ -41,6 +41,9 @@ Assets:
 ### Running the dev app (in streamlit)
 - in the terminal run:  python -m streamlit run fluff-generator.py
 
+### Just run the fluff_generator
+- In a terminal run:  python -m streamlit run src/fluff_generator.py
+
 ### Building the docker image:
 `docker build -t flask-app .`
 
