@@ -2,13 +2,15 @@ import os
 import json
 from flask import Flask, request, url_for, render_template, redirect, session, jsonify
 from markupsafe import escape
-from langchain.messages import AIMessage, HumanMessage, SystemMessage
 
-# Import fluff generator modules
-from src import model_funcs, prompts, retrieval
+# Import fluff generator module
+from src.fluff_generator import FluffGenerator
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', b'_5#y2L"F4Q8z\n\xec]/')
+
+# Initialize fluff generator
+fluff_gen = FluffGenerator(debug_mode=os.environ.get('DEBUG_MODE', False))
 
 # @app.route("/")
 # def index():
@@ -42,39 +44,15 @@ def fluff_message():
         if not user_message:
             return jsonify({'error': 'Empty message'}), 400
 
-        # Initialize messages if empty
-        if not message_history:
-            message_history = [
-                prompts.system_message,
-                prompts.ai_message
-            ]
+        # Generate response using FluffGenerator
+        result = fluff_gen.generate_response(user_message, message_history)
 
-        # Add user message
-        message_history.append(HumanMessage(content=user_message))
-
-        # Generate response
-        try:
-            model = model_funcs.gemini_model()
-            relevant_history = retrieval.extract_relevant_history(user_message)
-
-            response = model.invoke(
-                message_history + [
-                    HumanMessage(
-                        content=f"The relevant history is: {relevant_history}"
-                    )
-                ]
-            )
-            response_text = response.content
-
-        except Exception as e:
-            response_text = f"Error generating response: {str(e)}"
-
-        # Add assistant message
-        message_history.append({"role": "assistant", "content": response_text})
+        if 'error' in result:
+            return jsonify({'error': result['error']}), 400
 
         return jsonify({
-            'response': response_text,
-            'messages': message_history
+            'response': result['response'],
+            'messages': result['messages']
         })
 
     except Exception as e:
@@ -84,10 +62,7 @@ def fluff_message():
 def fluff_reset():
     """Reset the fluff generator conversation."""
     return jsonify({
-        'messages': [
-            prompts.system_message,
-            prompts.ai_message
-        ]
+        'messages': fluff_gen.get_initial_messages()
     })
 
 @app.route('/location/<location_id>')

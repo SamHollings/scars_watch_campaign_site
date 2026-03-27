@@ -1,90 +1,277 @@
-"""Generates post battle fluff based on the ongoing story and sides 
-invovled in our battles.
+"""
+Fluff Generator Module
 
-Contents:
-- access to ongoing story google docs document
-    - intially contents of this could simply be put into a text file, but eventually we want to be able to read and write to a google doc
-- use this as background context then, take in battle info and generate post battle fluff
-    - intially the whole document could be dumped into the prompt, 
-    - but eventually will want to bring only the relevant sections of the story into the prompt - e.g. RAG
-- save this fluff back into the ongoing story document
-- some sort of front end, to display the ongoing story
-- a trigger mechanism - such that when a battle report is submitted, the fluff is generated, added to the story document and displauyued on the front end
+Generates post-battle fluff based on the ongoing story and sides involved in battles.
+This module provides functions for generating Warhammer 40k campaign narrative.
 
-Assets:
-- txt file to store the story
-- battle report submission file
-- model pipeline to generate fluff
-- prompt template
-- front end to display story and receive submissions
-- trigger mechanism to run the model pipeline when a battle report is submitted
-
+Features:
+- Loads ongoing story context from text file
+- Uses LangChain with Google Gemini API for narrative generation
+- Maintains conversation history
+- Includes relevant story context with each generation
 """
 
-import streamlit as st
 from langchain.messages import AIMessage, HumanMessage, SystemMessage
-import src.model_funcs as model_funcs
-import src.prompts as prompts
-import src.streamlit_utils as streamlit_utils
-import src.retrieval as retrieval
+from typing import List, Dict, Optional
+import logging
 
-DEBUG_MODE = True
+from . import model_funcs, prompts, retrieval
 
-st.title("Warhammer 40k Story Generator")
+logger = logging.getLogger(__name__)
 
-st.write("This is a work in progress. The goal of this project is to generate post battle fluff based on the ongoing story and sides involved in our battles.")
 
-# need to add a system prompt to the beginning of the conversation, to set the context for the model. This should only be added once, at the beginning of the conversation, and not on every message.
+class FluffGenerator:
+    """Handles generation of Warhammer 40k battle fluff using Claude/Gemini."""
 
-system_message = prompts.system_message
-ai_message = prompts.ai_message
+    def __init__(self, debug_mode: bool = False):
+        """
+        Initialize the Fluff Generator.
 
-if "messages" not in st.session_state:
-    st.session_state.messages = [system_message, ai_message]
+        Args:
+            debug_mode: Whether to enable debug logging
+        """
+        self.debug_mode = debug_mode
+        self.model = None
+        self._initialize_model()
 
-streamlit_utils.display_messages()
-
-from langchain.messages import AIMessage, HumanMessage, SystemMessage
-
-# get new input
-input_text = st.chat_input("Ask me anything about the ongoing story, or submit a battle report to generate post-battle fluff.")
-
-if DEBUG_MODE:
-    import pprint
-    pprint.pp(st.session_state.messages)
-
-#prompt_template = f"""{input_text}"""
-
-user_message = dict(role="user", content=input_text)
-
-if user_message['content']:
-    # Add user message to history
-    st.session_state.messages.append(user_message)
-
-    # Show user message
-    with st.chat_message("user"):
-        st.write(user_message["content"])
-
-    with st.chat_message("assistant"):
-        placeholder = st.empty()
-        placeholder.write("🤔 Thinking...")
-    
+    def _initialize_model(self):
+        """Initialize the LLM model."""
         try:
+            self.model = model_funcs.gemini_model()
+            logger.info("Fluff generator model initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize model: {e}")
+            raise
 
-            model = model_funcs.gemini_model()
+    def get_initial_messages(self) -> List[Dict]:
+        """
+        Get initial system and AI messages for a new conversation.
 
-            response = model.invoke(st.session_state.messages + [HumanMessage(content=(f"The relevant history is: {retrieval.extract_relevant_history(input_text)}"))])
-            response_text = response.content
+        Returns:
+            List of initial messages for conversation history
+        """
+        return [
+            prompts.system_message,
+            prompts.ai_message
+        ]
 
-            print(response_text)
+    def generate_response(
+        self,
+        user_message: str,
+        message_history: Optional[List[Dict]] = None
+    ) -> Dict[str, any]:
+        """
+        Generate a response to a user message about the campaign.
+
+        Args:
+            user_message: The user's question or battle report
+            message_history: Previous conversation messages (optional)
+
+        Returns:
+            Dictionary containing:
+                - 'response': Generated narrative text
+                - 'messages': Updated message history
+                - 'error': Error message if generation failed (optional)
+        """
+        try:
+            # Initialize history if not provided
+            if not message_history:
+                message_history = self.get_initial_messages()
+
+            # Validate input
+            if not user_message or not user_message.strip():
+                return {
+                    'error': 'Empty message provided',
+                    'messages': message_history
+                }
+
+            # Add user message to history
+            message_history.append(HumanMessage(content=user_message))
+
+            # Get relevant story context
+            try:
+                relevant_history = retrieval.extract_relevant_history(user_message)
+            except Exception as e:
+                logger.warning(f"Failed to retrieve story context: {e}")
+                relevant_history = "Story context unavailable."
+
+            # Prepare messages for model
+            messages_for_model = message_history + [
+                HumanMessage(
+                    content=f"The relevant history is: {relevant_history}"
+                )
+            ]
+
+            if self.debug_mode:
+                logger.debug(f"Generated {len(messages_for_model)} messages for model")
+
+            # Generate response
+            try:
+                response = self.model.invoke(messages_for_model)
+                response_text = response.content
+            except Exception as e:
+                logger.error(f"Model generation failed: {e}")
+                response_text = f"Error generating response: {str(e)}"
+
+            # Add assistant response to history
+            message_history.append({
+                "role": "assistant",
+                "content": response_text
+            })
+
+            if self.debug_mode:
+                logger.debug(f"Response: {response_text[:100]}...")
+
+            return {
+                'response': response_text,
+                'messages': message_history
+            }
 
         except Exception as e:
-            response_text = "Error generating response."
-            st.error(str(e))
+            logger.error(f"Unexpected error in generate_response: {e}")
+            return {
+                'error': str(e),
+                'messages': message_history or self.get_initial_messages()
+            }
 
-        placeholder.write(response_text)
+    def reset_conversation(self) -> List[Dict]:
+        """
+        Reset the conversation to initial state.
 
-        st.session_state.messages.append({"role": "assistant", "content": response_text})
+        Returns:
+            Fresh initial message list
+        """
+        return self.get_initial_messages()
 
-    st.rerun()
+    def format_message_for_display(self, message: Dict) -> str:
+        """
+        Format a message for display purposes.
 
+        Args:
+            message: Message dict with 'role' and 'content'
+
+        Returns:
+            Formatted message string
+        """
+        role = message.get('role', 'unknown')
+        content = message.get('content', '')
+
+        if role == 'system':
+            return f"[SYSTEM] {content}"
+        elif role == 'assistant':
+            return f"🤖 {content}"
+        elif role == 'user':
+            return f"👤 {content}"
+        else:
+            return content
+
+
+# Convenience functions for direct use
+
+_generator: Optional[FluffGenerator] = None
+
+
+def get_generator(debug_mode: bool = False) -> FluffGenerator:
+    """
+    Get or create the global FluffGenerator instance.
+
+    Args:
+        debug_mode: Whether to enable debug logging
+
+    Returns:
+        FluffGenerator instance
+    """
+    global _generator
+    if _generator is None:
+        _generator = FluffGenerator(debug_mode=debug_mode)
+    return _generator
+
+
+def generate_fluff(
+    user_input: str,
+    history: Optional[List[Dict]] = None,
+    debug: bool = False
+) -> Dict[str, any]:
+    """
+    Generate fluff for the given user input.
+
+    Args:
+        user_input: User's question or battle report
+        history: Previous message history
+        debug: Enable debug logging
+
+    Returns:
+        Dictionary with 'response' and 'messages' keys
+    """
+    generator = get_generator(debug_mode=debug)
+    return generator.generate_response(user_input, history)
+
+
+def get_initial_state(debug: bool = False) -> List[Dict]:
+    """
+    Get initial conversation state.
+
+    Args:
+        debug: Enable debug logging
+
+    Returns:
+        Initial message list
+    """
+    generator = get_generator(debug_mode=debug)
+    return generator.get_initial_messages()
+
+
+def reset_generator_state(debug: bool = False) -> List[Dict]:
+    """
+    Reset the generator to initial state.
+
+    Args:
+        debug: Enable debug logging
+
+    Returns:
+        Fresh initial message list
+    """
+    generator = get_generator(debug_mode=debug)
+    return generator.reset_conversation()
+
+
+if __name__ == '__main__':
+    # Example usage
+    import json
+
+    print("Initializing Fluff Generator...")
+    generator = FluffGenerator(debug_mode=True)
+
+    print("\n" + "="*60)
+    print("Warhammer 40k Fluff Generator - Command Line Demo")
+    print("="*60)
+
+    messages = generator.get_initial_messages()
+
+    print("\nInitial AI Message:")
+    print(generator.format_message_for_display(messages[-1]))
+
+    while True:
+        print("\n" + "-"*60)
+        user_input = input("You: ").strip()
+
+        if not user_input:
+            continue
+
+        if user_input.lower() in ['quit', 'exit', 'q']:
+            print("Goodbye, Emperor protect!")
+            break
+
+        if user_input.lower() == 'reset':
+            messages = generator.reset_conversation()
+            print("Conversation reset.")
+            continue
+
+        print("\nGenerating response...")
+        result = generator.generate_response(user_input, messages)
+
+        if 'error' in result:
+            print(f"Error: {result['error']}")
+        else:
+            print(f"\nAssistant: {result['response']}")
+            messages = result['messages']

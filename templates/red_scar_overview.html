@@ -605,10 +605,10 @@
                     description: 'Sacred Homeworld of the Blood Angels. Beyond the Red Scar.',
                     backstory: 'Baal stands as the sacred homeworld of the Blood Angels Space Marine Chapter, though it lies beyond the immediate Red Scar Subsector. The proximity to the Red Scar region makes it strategically vital to regional stability. The world has endured countless Tyranid assaults, culminating in the devastating siege by Hive Fleet Leviathan.',
                     events: [
-                        'Survived the Siege of Baal (999.M41)',
-                        'Suffered catastrophic Tyranid invasion',
-                        'Commander Dante authorized Deathwatch operations in Red Scar',
-                        'Ongoing Tyranid splinter incursions (current)'
+                        {'date': '999.M41', 'title': 'Survived the Siege of Baal', 'details': 'Baal endured the catastrophic siege by Hive Fleet Leviathan.'},
+                        {'date': '999.M41', 'title': 'Suffered catastrophic Tyranid invasion', 'details': 'Hive Fleet Leviathan brought unprecedented devastation to the world.'},
+                        {'date': '000.M42', 'title': 'Dante authorized Deathwatch operations', 'details': 'Commander Dante recommended establishing Deathwatch presence in Red Scar.'},
+                        {'date': 'Current', 'title': 'Ongoing Tyranid splinter incursions', 'details': 'Remnant Tyranid fleets continue to probe the Red Scar region.'}
                     ]
                 }
             ]
@@ -619,6 +619,10 @@
         const ctx = canvas.getContext('2d');
         let img = new Image();
         let clickableRegions = [];
+
+        console.log('Map initialization started');
+        console.log('Canvas element:', canvas);
+        console.log('Map locations:', mapData.locations.length);
 
         // Set canvas size
         function resizeCanvas() {
@@ -672,10 +676,14 @@
         function drawClickableRegions() {
             clickableRegions = [];
 
+            console.log('Drawing clickable regions. Canvas size:', canvas.width, 'x', canvas.height);
+
             mapData.locations.forEach((location, index) => {
                 const x = location.x * canvas.width;
                 const y = location.y * canvas.height;
                 const radius = location.radius;
+
+                console.log(`Location ${index} (${location.name}): pixel coords (${x}, ${y})`);
 
                 // Draw circle
                 ctx.strokeStyle = '#ffd700';
@@ -755,6 +763,9 @@
             }
         });
 
+        // Debug: Log when events are attached
+        console.log('Canvas event listeners attached');
+
         function showLocationInfo(location, x, y) {
             const info = document.getElementById('locationInfo');
             info.innerHTML = `
@@ -776,25 +787,42 @@
         }
 
         function showLocationSidebar(location) {
-            document.getElementById('sidebarTitle').textContent = location.name;
-            document.getElementById('sidebarBackstory').textContent = location.backstory;
+            try {
+                console.log('Showing sidebar for location:', location.name);
 
-            // Build events list
-            const eventsDiv = document.getElementById('sidebarEvents');
-            eventsDiv.innerHTML = '<h3>Key Events</h3>';
-            location.events.forEach(event => {
-                const eventDiv = document.createElement('div');
-                eventDiv.className = 'sidebar-event';
-                eventDiv.innerHTML = `
-                    <div class="sidebar-event-date">${event.date}</div>
-                    <div class="sidebar-event-title">${event.title}</div>
-                    <div class="sidebar-event-details">${event.details}</div>
-                `;
-                eventsDiv.appendChild(eventDiv);
-            });
+                document.getElementById('sidebarTitle').textContent = location.name;
+                document.getElementById('sidebarBackstory').textContent = location.backstory;
 
-            // Open sidebar
-            document.getElementById('sidebar').classList.add('open');
+                // Build events list
+                const eventsDiv = document.getElementById('sidebarEvents');
+                eventsDiv.innerHTML = '<h3>Key Events</h3>';
+
+                if (location.events && Array.isArray(location.events)) {
+                    location.events.forEach(event => {
+                        const eventDiv = document.createElement('div');
+                        eventDiv.className = 'sidebar-event';
+
+                        // Handle both string and object formats
+                        if (typeof event === 'string') {
+                            eventDiv.innerHTML = `<div class="sidebar-event-details">${event}</div>`;
+                        } else {
+                            eventDiv.innerHTML = `
+                                <div class="sidebar-event-date">${event.date || ''}</div>
+                                <div class="sidebar-event-title">${event.title || ''}</div>
+                                <div class="sidebar-event-details">${event.details || ''}</div>
+                            `;
+                        }
+                        eventsDiv.appendChild(eventDiv);
+                    });
+                }
+
+                // Open sidebar
+                document.getElementById('sidebar').classList.add('open');
+                console.log('Sidebar opened successfully');
+            } catch (e) {
+                console.error('Error showing sidebar:', e);
+                alert('Error displaying location details. Check browser console.');
+            }
         }
 
         function closeSidebar() {
@@ -889,7 +917,9 @@
         }
 
         // Handle Enter key in input
-        document.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('load', function() {
+            console.log('Page fully loaded');
+
             const fluffInput = document.getElementById('fluffInput');
             if (fluffInput) {
                 fluffInput.addEventListener('keypress', function(e) {
@@ -919,6 +949,8 @@
                     }
                 });
             }
+
+            console.log('All event listeners initialized');
         });
 
         // Handle window resize
