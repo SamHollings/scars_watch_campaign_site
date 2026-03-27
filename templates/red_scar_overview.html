@@ -94,15 +94,31 @@
 
         .location-info {
             position: absolute;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.95);
             color: #ffd700;
-            padding: 10px 15px;
-            border-radius: 5px;
+            padding: 12px 16px;
+            border-radius: 8px;
             font-size: 0.9em;
             pointer-events: none;
             display: none;
             z-index: 10;
-            border: 1px solid #ffd700;
+            border: 2px solid #ffd700;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+            max-width: 200px;
+            word-wrap: break-word;
+        }
+
+        .location-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .location-desc {
+            font-size: 0.85em;
+            color: #d0d0d0;
+            display: block;
         }
 
         .loading {
@@ -168,14 +184,80 @@
             imageUrl: '{{ image_url }}',
             locations: [
                 {
+                    id: 'scars-watch',
                     name: 'Scars Watch',
-                    x: 0.49,  // percentage from left
-                    y: 0.53,  // percentage from top
+                    x: 0.49,
+                    y: 0.53,
                     radius: 30,
-                    description: 'Strategic command center. Click to view battle reports.',
-                    action: 'fluff'
+                    description: 'Deathwatch Fortress Fleet. Strategic command center.',
+                    backstory: 'Scars Watch is the primary military stronghold in the Red Scar Region, a Deathwatch Watch Fortress comprising a refitted Hecate Class Heavy Cruiser with escort vessels. Recommended by both Lord Roboute Guilliman and Commander Dante to maintain stability following the Tyranid invasions.',
+                    events: [
+                        'Founded during the Imperial campaigns of 899.M41',
+                        'Defended heroically against the Ork invasion of 956.M41',
+                        'Hosted the historic peace summit in 987.M41',
+                        'Recently upgraded with new void shields (012.M42)'
+                    ]
+                },
+                {
+                    id: 'phlegmus',
+                    name: 'Phlegmus',
+                    x: 0.65,
+                    y: 0.35,
+                    radius: 28,
+                    description: 'Plague Planet. Stronghold of the Pestilent Brethren.',
+                    backstory: 'Phlegmus, also known as the Plague Planet, is ruled by the Apostles of Contagion - a Chaos warband dedicated to Nurgle. The planet\'s surface is dominated by disease-saturated pools that create portals to the Warp itself. The biologian caste conducts horrific experiments, transforming victims into plague-carriers. The toxic conditions make conventional invasion nearly impossible.',
+                    events: [
+                        'Became a Chaos stronghold during the Warp Breach of 987.M41',
+                        'Spawned the Pestilent Brethren plague warband (995.M41)',
+                        'Disease vectors spread to Khajikes V (001.M42)',
+                        'Warp portal activity detected (011.M42)'
+                    ]
+                },
+                {
+                    id: 'khajikes-v',
+                    name: 'Khajikes V',
+                    x: 0.52,
+                    y: 0.68,
+                    radius: 26,
+                    description: 'Plague-ravaged world. Primary victim of biological warfare.',
+                    backstory: 'Khajikes V has become a monument to the horrors of the Pestilent Brethren\'s bioweapon experiments. Plague victims from across the Red Scar region are drawn to or deliberately sent to this world, where they succumb in mass plague pits. The accumulated corpses and disease create an overwhelming miasma of contamination, making it nearly impossible for Imperial forces to effectively control.',
+                    events: [
+                        'Initially a minor Imperial colony (956.M41)',
+                        'First plague outbreak recorded (998.M41)',
+                        'Overwhelmed by plague victims (002.M42)',
+                        'Declared a quarantine zone (010.M42)'
+                    ]
+                },
+                {
+                    id: 'weepmire',
+                    name: 'Weepmire',
+                    x: 0.72,
+                    y: 0.48,
+                    radius: 24,
+                    description: 'Secondary Plague World. Experimental biolab.',
+                    backstory: 'Weepmire serves as a secondary plague world under Nurgle\'s influence, home to experimental biologian cults. The planet\'s marshlands create ideal conditions for disease proliferation and mutation. It serves as both a proving ground for new plagues and a fallback position for the Apostles of Contagion.',
+                    events: [
+                        'Corrupted by Chaos forces (989.M41)',
+                        'First biological experiments conducted (996.M41)',
+                        'Linked to Phlegmus via Warp portal (004.M42)',
+                        'Contains rumored xenos artifacts (009.M42)'
+                    ]
+                },
+                {
+                    id: 'baal',
+                    name: 'Baal',
+                    x: 0.35,
+                    y: 0.25,
+                    radius: 28,
+                    description: 'Sacred Homeworld of the Blood Angels. Beyond the Red Scar.',
+                    backstory: 'Baal stands as the sacred homeworld of the Blood Angels Space Marine Chapter, though it lies beyond the immediate Red Scar Subsector. The proximity to the Red Scar region makes it strategically vital to regional stability. The world has endured countless Tyranid assaults, culminating in the devastating siege by Hive Fleet Leviathan.',
+                    events: [
+                        'Survived the Siege of Baal (999.M41)',
+                        'Suffered catastrophic Tyranid invasion',
+                        'Commander Dante authorized Deathwatch operations in Red Scar',
+                        'Ongoing Tyranid splinter incursions (current)'
+                    ]
                 }
-                // Add more locations as needed
             ]
         };
 
@@ -322,9 +404,12 @@
 
         function showLocationInfo(location, x, y) {
             const info = document.getElementById('locationInfo');
-            info.textContent = location.description;
+            info.innerHTML = `
+                <span class="location-title">${location.name}</span>
+                <span class="location-desc">${location.description}</span>
+            `;
             info.style.left = (x + 10) + 'px';
-            info.style.top = (y - 40) + 'px';
+            info.style.top = (y - 60) + 'px';
             info.style.display = 'block';
         }
 
@@ -333,9 +418,8 @@
         }
 
         function handleLocationClick(location) {
-            if (location.action === 'fluff') {
-                navigateToFluff();
-            }
+            // Navigate to location detail page
+            window.location.href = '/location/' + location.id;
         }
 
         function navigateToFluff() {

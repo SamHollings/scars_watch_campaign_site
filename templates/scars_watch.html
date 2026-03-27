@@ -106,6 +106,38 @@
             border-radius: 5px;
         }
 
+        .btn-streamlit {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+            margin-top: 20px;
+            font-size: 1.1em;
+            padding: 15px 40px;
+        }
+
+        .btn-streamlit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+        }
+
+        .btn-streamlit:active {
+            transform: translateY(0);
+        }
+
+        .action-section {
+            margin: 30px 0;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 107, 53, 0.1);
+            border-radius: 8px;
+            border: 2px solid #ff6b35;
+        }
+
+        .action-section h3 {
+            color: #ff6b35;
+            margin-bottom: 15px;
+        }
+
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -147,14 +179,79 @@
                 <p>Strategic location for campaign narrative development.</p>
             </div>
 
-            <h2>Features Coming Soon</h2>
-            <p>Battle report submission form and fluff generation interface will be available here.</p>
+            <div class="action-section">
+                <h3>🚀 Launch the Interactive Fluff Generator</h3>
+                <p>Click the button below to open the Streamlit-powered battle fluff generator.</p>
+                <p style="font-size: 0.9em; color: #d0d0d0; margin-top: 10px;">
+                    The generator runs on a separate port and will open in a new tab.
+                </p>
+                <button class="btn-streamlit" onclick="launchStreamlit()">
+                    ⚡ Launch Streamlit Fluff Generator
+                </button>
+                <p style="font-size: 0.85em; color: #a0a0a0; margin-top: 15px;" id="streamlit-status"></p>
+            </div>
+
+            <h2>How It Works</h2>
+            <div class="info-box">
+                <p><strong>Battle Report Submission:</strong></p>
+                <p>Submit details about your recent battle including factions involved, outcome, and key events.</p>
+            </div>
+            <div class="info-box">
+                <p><strong>AI-Generated Fluff:</strong></p>
+                <p>The system analyzes the ongoing story and battle information to generate immersive post-battle narrative.</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Campaign Continuity:</strong></p>
+                <p>Generated fluff is integrated into the ongoing campaign story, maintaining narrative consistency.</p>
+            </div>
         </div>
     </div>
 
     <script>
+        // Configuration
+        const STREAMLIT_PORT = 8501;
+        const STREAMLIT_HOST = window.location.hostname;
+
         function backToMap() {
             window.location.href = '{{ url_for("index") }}';
+        }
+
+        function launchStreamlit() {
+            const streamlitUrl = `http://${STREAMLIT_HOST}:${STREAMLIT_PORT}`;
+            const statusElement = document.getElementById('streamlit-status');
+
+            // Check if Streamlit is running
+            fetch(streamlitUrl, { mode: 'no-cors' })
+                .then(() => {
+                    // Streamlit is running, open it
+                    window.open(streamlitUrl, 'streamlit_window', 'width=1200,height=800');
+                    statusElement.textContent = '✓ Streamlit opened in new window';
+                })
+                .catch(() => {
+                    // Streamlit is not running
+                    statusElement.innerHTML = `
+                        <span style="color: #ff6b35;">⚠️ Streamlit is not running</span><br>
+                        <span style="font-size: 0.9em; margin-top: 10px; display: block;">
+                            To start Streamlit, open a new terminal and run:<br>
+                            <code style="background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 3px;">
+                                streamlit run fluff_generator.py --server.port 8501
+                            </code>
+                        </span>
+                    `;
+
+                    // Offer to try again or open anyway
+                    setTimeout(() => {
+                        const retryConfirm = confirm(
+                            'Streamlit does not appear to be running.\n\n' +
+                            'Start it in a new terminal with:\n' +
+                            'streamlit run fluff_generator.py\n\n' +
+                            'Try again now?'
+                        );
+                        if (retryConfirm) {
+                            launchStreamlit();
+                        }
+                    }, 500);
+                });
         }
     </script>
 </body>
