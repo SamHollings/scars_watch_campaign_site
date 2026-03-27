@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nebula Explorer</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map { height: 600px; width: 100%; background: #000; }
+        body { font-family: sans-serif; background: #111; color: white; }
+        #info-panel { padding: 20px; background: #222; margin-top: 10px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+    <h1>Nebula Star Chart</h1>
+    <div id="map"></div>
+    
+    <div id="info-panel">
+        <h2 id="poi-name">Click a marker</h2>
+        <p id="poi-desc">Select a point of interest on the nebula to see details.</p>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 1. Initialize the map with CRS.Simple (for flat images)
+        var map = L.map('map', {
+            crs: L.CRS.Simple,
+            minZoom: -1
+        });
+
+        // 2. Define your image dimensions and path
+        var w = 1024, h = 1024; // Match your actual image pixels
+        var url = '/static/red scar region.png';
+
+        // 3. Set the image bounds
+        var southWest = map.unproject([0, h], map.getMaxZoom()-1);
+        var northEast = map.unproject([w, 0], map.getMaxZoom()-1);
+        var bounds = new L.LatLngBounds(southWest, northEast);
+
+        // 4. Add image to map
+        L.imageOverlay(url, bounds).addTo(map);
+        map.setMaxBounds(bounds);
+        map.fitBounds(bounds);
+
+        // 5. Fetch POI data from Flask API
+        fetch('/api/poi')
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(poi => {
+                    // Create a marker for each POI
+                    var marker = L.marker(poi.coords).addTo(map);
+                    
+                    // Interaction: Update info panel on click
+                    marker.on('click', function() {
+                        document.getElementById('poi-name').innerText = poi.name;
+                        document.getElementById('poi-desc').innerText = poi.info;
+                    });
+                });
+            });
+            
+        // Helper to find coordinates during development
+        map.on('click', function(e) {
+            console.log("Clicked at: ", e.latlng);
+        });
+    </script>
+</body>
+</html>
