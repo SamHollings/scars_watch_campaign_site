@@ -92,6 +92,124 @@
             transform: translateY(0);
         }
 
+        .btn-characters {
+            background: linear-gradient(135deg, #9d4edd 0%, #c77dff 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4);
+        }
+
+        .btn-characters:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(157, 78, 221, 0.6);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            right: -450px;
+            top: 0;
+            width: 450px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            border-left: 3px solid #ffd700;
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            z-index: 999;
+            box-shadow: -4px 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar.open {
+            right: 0;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1a1a2e;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .sidebar-close {
+            background: none;
+            border: none;
+            color: #1a1a2e;
+            font-size: 2em;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+        }
+
+        .sidebar-content {
+            padding: 20px;
+            color: #d0d0d0;
+        }
+
+        .sidebar-content h3 {
+            color: #ffd700;
+            font-size: 1.3em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-content p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-events {
+            margin-top: 20px;
+        }
+
+        .sidebar-event {
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 3px solid #ff6b35;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .sidebar-event-date {
+            color: #ff6b35;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-event-title {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-event-details {
+            font-size: 0.9em;
+            color: #b0b0b0;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 350px;
+                right: -350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                right: -100%;
+            }
+        }
+
         .location-info {
             position: absolute;
             background: rgba(0, 0, 0, 0.95);
@@ -142,6 +260,207 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Fluff Generator Modal */
+        .fluff-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fluff-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            margin: 30px auto;
+            padding: 0;
+            border: 3px solid #ff6b35;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+        }
+
+        .fluff-header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 20px;
+            border-bottom: 2px solid #ffd700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .fluff-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .fluff-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2em;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .fluff-close:hover {
+            transform: rotate(90deg);
+        }
+
+        .fluff-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .fluff-message {
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-user {
+            text-align: right;
+            color: #ffd700;
+        }
+
+        .message-assistant {
+            text-align: left;
+            color: #d0d0d0;
+        }
+
+        .message-content {
+            display: inline-block;
+            padding: 12px 15px;
+            border-radius: 8px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message-user .message-content {
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid #ffd700;
+        }
+
+        .message-assistant .message-content {
+            background: rgba(255, 107, 53, 0.2);
+            border: 1px solid #ff6b35;
+        }
+
+        .message-assistant .message-content {
+            line-height: 1.5;
+            font-size: 0.95em;
+        }
+
+        .fluff-input-area {
+            padding: 20px;
+            border-top: 2px solid #ff6b35;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .fluff-input-area input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ff6b35;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffd700;
+            font-size: 1em;
+        }
+
+        .fluff-input-area input::placeholder {
+            color: #888;
+        }
+
+        .fluff-input-area input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .fluff-input-area button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .fluff-input-area button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.5);
+        }
+
+        .fluff-input-area button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .fluff-thinking {
+            text-align: center;
+            color: #ff6b35;
+            font-style: italic;
+            padding: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .fluff-content {
+                width: 95%;
+                height: 90vh;
+                margin: 20px auto;
+            }
+
+            .message-content {
+                max-width: 90%;
+            }
+
+            .fluff-input-area {
+                flex-direction: column;
+            }
+
+            .fluff-input-area button {
+                width: 100%;
+            }
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
@@ -170,12 +489,46 @@
     </div>
 
     <div class="controls">
-        <button class="btn-fluff" onclick="navigateToFluff()">Launch Fluff Generator</button>
+        <button class="btn-fluff" onclick="openFluffGenerator()">⚡ Launch Fluff Generator</button>
+        <button class="btn-characters" onclick="goToCharacters()">👥 Characters of the Red Scar</button>
     </div>
 
     <div class="loading" id="loading">
         <div class="spinner"></div>
         <p>Loading...</p>
+    </div>
+
+    <!-- Sidebar for Location Details -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 id="sidebarTitle"></h2>
+            <button class="sidebar-close" onclick="closeSidebar()">×</button>
+        </div>
+        <div class="sidebar-content">
+            <p id="sidebarBackstory"></p>
+            <div id="sidebarEvents"></div>
+        </div>
+    </div>
+
+    <!-- Fluff Generator Modal -->
+    <div class="fluff-modal" id="fluffModal">
+        <div class="fluff-content">
+            <div class="fluff-header">
+                <h2>⚡ Warhammer 40k Fluff Generator</h2>
+                <button class="fluff-close" onclick="closeFluffGenerator()">×</button>
+            </div>
+            <div class="fluff-messages" id="fluffMessages">
+                <div class="fluff-message message-assistant">
+                    <div class="message-content">
+                        👋 Welcome! I'm your Warhammer 40k story generator. Ask me anything about the ongoing story, or submit a battle report to generate post-battle fluff.
+                    </div>
+                </div>
+            </div>
+            <div class="fluff-input-area">
+                <input type="text" id="fluffInput" placeholder="Ask about the story or submit a battle report..." />
+                <button onclick="sendFluffMessage()">Send</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -246,8 +599,8 @@
                 {
                     id: 'baal',
                     name: 'Baal',
-                    x: 0.35,
-                    y: 0.25,
+                    x: 0.08,
+                    y: 0.15,
                     radius: 28,
                     description: 'Sacred Homeworld of the Blood Angels. Beyond the Red Scar.',
                     backstory: 'Baal stands as the sacred homeworld of the Blood Angels Space Marine Chapter, though it lies beyond the immediate Red Scar Subsector. The proximity to the Red Scar region makes it strategically vital to regional stability. The world has endured countless Tyranid assaults, culminating in the devastating siege by Hive Fleet Leviathan.',
@@ -418,13 +771,155 @@
         }
 
         function handleLocationClick(location) {
-            // Navigate to location detail page
-            window.location.href = '/location/' + location.id;
+            // Show location details in sidebar
+            showLocationSidebar(location);
         }
 
-        function navigateToFluff() {
-            window.location.href = '{{ url_for("scars_watch") }}';
+        function showLocationSidebar(location) {
+            document.getElementById('sidebarTitle').textContent = location.name;
+            document.getElementById('sidebarBackstory').textContent = location.backstory;
+
+            // Build events list
+            const eventsDiv = document.getElementById('sidebarEvents');
+            eventsDiv.innerHTML = '<h3>Key Events</h3>';
+            location.events.forEach(event => {
+                const eventDiv = document.createElement('div');
+                eventDiv.className = 'sidebar-event';
+                eventDiv.innerHTML = `
+                    <div class="sidebar-event-date">${event.date}</div>
+                    <div class="sidebar-event-title">${event.title}</div>
+                    <div class="sidebar-event-details">${event.details}</div>
+                `;
+                eventsDiv.appendChild(eventDiv);
+            });
+
+            // Open sidebar
+            document.getElementById('sidebar').classList.add('open');
         }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+        }
+
+        // Fluff Generator State
+        let fluffMessages = [];
+        let fluffLoading = false;
+
+        function openFluffGenerator() {
+            document.getElementById('fluffModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            fluffMessages = [];
+            document.getElementById('fluffMessages').innerHTML = `
+                <div class="fluff-message message-assistant">
+                    <div class="message-content">
+                        👋 Welcome! I'm your Warhammer 40k story generator. Ask me anything about the ongoing story, or submit a battle report to generate post-battle fluff.
+                    </div>
+                </div>
+            `;
+            document.getElementById('fluffInput').focus();
+        }
+
+        function closeFluffGenerator() {
+            document.getElementById('fluffModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function sendFluffMessage() {
+            const input = document.getElementById('fluffInput');
+            const message = input.value.trim();
+
+            if (!message || fluffLoading) return;
+
+            // Add user message to display
+            addFluffMessageToDisplay('user', message);
+            input.value = '';
+
+            // Show thinking indicator
+            addFluffMessageToDisplay('assistant', '🤔 Thinking...');
+
+            fluffLoading = true;
+
+            // Send to API
+            fetch('/api/fluff/message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    messages: fluffMessages
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    updateLastMessage('❌ ' + data.error);
+                } else {
+                    updateLastMessage(data.response);
+                    fluffMessages = data.messages;
+                }
+                fluffLoading = false;
+                document.getElementById('fluffInput').focus();
+            })
+            .catch(error => {
+                updateLastMessage('❌ Error: ' + error.message);
+                fluffLoading = false;
+            });
+        }
+
+        function addFluffMessageToDisplay(role, text) {
+            const messagesDiv = document.getElementById('fluffMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `fluff-message message-${role}`;
+            messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function updateLastMessage(text) {
+            const messagesDiv = document.getElementById('fluffMessages');
+            const lastMessage = messagesDiv.querySelector('.message-assistant:last-child .message-content');
+            if (lastMessage) {
+                lastMessage.textContent = text;
+            }
+        }
+
+        function goToCharacters() {
+            window.location.href = '{{ url_for("characters") }}';
+        }
+
+        // Handle Enter key in input
+        document.addEventListener('DOMContentLoaded', function() {
+            const fluffInput = document.getElementById('fluffInput');
+            if (fluffInput) {
+                fluffInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendFluffMessage();
+                    }
+                });
+            }
+
+            // Close modal on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (document.getElementById('fluffModal').style.display === 'block') {
+                        closeFluffGenerator();
+                    } else if (document.getElementById('sidebar').classList.contains('open')) {
+                        closeSidebar();
+                    }
+                }
+            });
+
+            // Close modal on outside click
+            const fluffModal = document.getElementById('fluffModal');
+            if (fluffModal) {
+                fluffModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeFluffGenerator();
+                    }
+                });
+            }
+        });
 
         // Handle window resize
         window.addEventListener('resize', resizeCanvas);

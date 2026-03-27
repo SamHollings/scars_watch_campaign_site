@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Characters of the Red Scar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #ffd700;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #b0b0b0;
+            font-size: 1.1em;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 30px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .character-card {
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid #ffd700;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .character-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(255, 215, 0, 0.3);
+            border-color: #ffed4e;
+        }
+
+        .character-name {
+            color: #ffd700;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .character-title {
+            color: #ff6b35;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .character-faction {
+            background: rgba(255, 107, 53, 0.2);
+            border-left: 4px solid #ff6b35;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+        .character-faction strong {
+            color: #ff6b35;
+        }
+
+        .character-description {
+            color: #d0d0d0;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .character-background {
+            color: #b0b0b0;
+            font-style: italic;
+            border-top: 1px solid rgba(255, 215, 0, 0.3);
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .characters-section {
+            margin-bottom: 50px;
+        }
+
+        .faction-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ff6b35;
+        }
+
+        .faction-icon {
+            font-size: 2.5em;
+        }
+
+        .faction-header h2 {
+            color: #ff6b35;
+            font-size: 2em;
+        }
+
+        .faction-header p {
+            color: #b0b0b0;
+            margin-left: auto;
+        }
+
+        .faction-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid #ffd700;
+            color: #ffd700;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .characters-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .faction-content {
+                grid-template-columns: 1fr;
+            }
+
+            .character-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-button" onclick="window.location.href='{{ url_for('index') }}'">← Back to Map</button>
+
+        <div class="header">
+            <h1>👥 Characters of the Red Scar</h1>
+            <p>The notable commanders, factions, and forces that shape the destiny of the region</p>
+        </div>
+
+        <!-- Imperial Forces -->
+        <div class="characters-section">
+            <div class="faction-header">
+                <div class="faction-icon">🦅</div>
+                <h2>Imperial Forces</h2>
+                <p style="color: #ffd700;">Defending the Imperium</p>
+            </div>
+            <div class="faction-content">
+                <div class="character-card">
+                    <div class="character-name">Watch Master Sanguone</div>
+                    <div class="character-title">Commander of Scars Watch</div>
+                    <div class="role-badge">Deathwatch</div>
+                    <div class="character-faction">
+                        <strong>Faction:</strong> Deathwatch Watch Fortress
+                    </div>
+                    <div class="character-description">
+                        Watch Master Sanguone commands the Deathwatch Watch Fortress Fleet stationed in the Red Scar region. A seasoned veteran of countless campaigns against xenos threats.
+                    </div>
+                    <div class="character-background">
+                        Previously served at Talasa Prime as a Watch Captain, where he spent substantial time fighting Tyranids in Ultramar. He combines Ultramarine patience and restraint with the blood-given fury of his chapter, making him an effective leader against overwhelming odds.
+                    </div>
+                </div>
+
+                <div class="character-card">
+                    <div class="character-name">Commander Dante</div>
+                    <div class="character-title">Chapter Master of Blood Angels</div>
+                    <div class="role-badge">Blood Angels</div>
+                    <div class="character-faction">
+                        <strong>Faction:</strong> Blood Angels Chapter
+                    </div>
+                    <div class="character-description">
+                        Legendary commander of the Blood Angels Space Marine Chapter and defender of Baal. Following the devastating Siege of Baal, Dante recognized the ongoing Tyranid threat in the Red Scar region.
+                    </div>
+                    <div class="character-background">
+                        As the most senior living member of the Blood Angels, Dante recommended the establishment of the Deathwatch Watch Fortress to maintain regional stability and protect Baal from further xenos incursions.
+                    </div>
+                </div>
+
+                <div class="character-card">
+                    <div class="character-name">Lord Roboute Guilliman</div>
+                    <div class="character-title">Lord Commander of the Imperium</div>
+                    <div class="role-badge">Ultramarines</div>
+                    <div class="character-faction">
+                        <strong>Faction:</strong> Imperium of Mankind
+                    </div>
+                    <div class="character-description">
+                        The Primarch Roboute Guilliman, returned from the long sleep, now guides the Imperium in its darkest hour. His strategic vision extends across the Imperium Nihilus and beyond.
+                    </div>
+                    <div class="character-background">
+                        Guilliman jointly recommended the creation of the Scars Watch Fortress with Commander Dante to ensure the Red Scar region remains a stable anchor point in an increasingly chaotic galaxy.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chaos Forces -->
+        <div class="characters-section">
+            <div class="faction-header">
+                <div class="faction-icon">☠️</div>
+                <h2>Chaos Forces</h2>
+                <p style="color: #ff6b35;">Spreading Corruption and Disease</p>
+            </div>
+            <div class="faction-content">
+                <div class="character-card">
+                    <div class="character-name">The Apostles of Contagion</div>
+                    <div class="character-title">Warband of Nurgle</div>
+                    <div class="role-badge">Chaos</div>
+                    <div class="character-faction">
+                        <strong>Faction:</strong> Chaos - Servants of Nurgle
+                    </div>
+                    <div class="character-description">
+                        The Apostles of Contagion, also known as the Pestilent Brethren, represent a grave threat to the Red Scar region. Ruled by a caste of biologians dedicated to Nurgle's vision of "blessing."
+                    </div>
+                    <div class="character-background">
+                        These twisted servants of the Plague God conduct horrific biological experiments, dipping victims into transformative pools to "free them from sadness and pain." They have transformed Phlegmus into a stronghold of disease and established secondary laboratories on Weepmire and other worlds.
+                    </div>
+                </div>
+
+                <div class="character-card">
+                    <div class="character-name">The Biologian Collective</div>
+                    <div class="character-title">Masters of Plague</div>
+                    <div class="role-badge">Chaos</div>
+                    <div class="character-faction">
+                        <strong>Faction:</strong> Apostles of Contagion Leadership
+                    </div>
+                    <div class="character-description">
+                        A caste of brilliant but utterly corrupted scientists who command the plague weapons and biotechnology of the Apostles of Contagion. Their experiments create new and varied plagues.
+                    </div>
+                    <div class="character-background">
+                        These individuals have achieved a twisted immortality through their pacts with Nurgle. They move between plague worlds through the disease-saturated portals, spreading their innovations and coordinating the biological warfare campaign across the Red Scar.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Xenos Threats -->
+        <div class="characters-section">
+            <div class="faction-header">
+                <div class="faction-icon">🐛</div>
+                <h2>Xenos Threats</h2>
+                <p style="color: #9d4edd;">Threats Beyond Humanity</p>
+            </div>
+            <div class="faction-content">
+                <div class="character-card">
+                    <div class="character-name">Hive Fleet Leviathan</div>
+                    <div class="character-title">Tyranid Swarm</div>
+                    <div class="role-badge">Xenos</div>
+                    <div class="character-faction">
+                        <strong>Faction:</strong> Tyranid Hive Fleets
+                    </div>
+                    <div class="character-description">
+                        One of the largest known Tyranid hive fleets, responsible for the catastrophic invasion of the Baal system in 999.M41. Though the main fleet has been driven back, splinter fleets continue to probe the Red Scar region.
+                    </div>
+                    <div class="character-background">
+                        The Siege of Baal cost both sides immensely, but the Tyranid presence remains a constant threat. The ongoing splinter incursions justify the continued Deathwatch presence and serve as a reminder that the galaxy remains under constant threat from the void.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story Context -->
+        <div class="header" style="border-top: 3px solid #ffd700; border-bottom: none;">
+            <h2 style="color: #ffd700; margin-bottom: 15px;">The Struggle for the Red Scar</h2>
+            <p>
+                The Red Scar Subsector has become a focal point of conflict between the Imperium of Mankind and the forces of Chaos and Xenos.
+                The characters listed above represent the key players in this struggle—commanders, scientists, and ancient evils—each pursuing their own vision
+                for the region's future. The outcome of their conflicts will determine whether the Red Scar remains a beacon of Imperial strength or succumbs
+                to darkness and corruption.
+            </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 50px;">
+            <button class="back-button" onclick="window.location.href='{{ url_for('index') }}'">← Back to Map</button>
+        </div>
+    </div>
+</body>
+</html>

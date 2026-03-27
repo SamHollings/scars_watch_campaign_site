@@ -1,6 +1,11 @@
 import os
-from flask import Flask, request, url_for, render_template, redirect, session
+import json
+from flask import Flask, request, url_for, render_template, redirect, session, jsonify
 from markupsafe import escape
+from langchain.messages import AIMessage, HumanMessage, SystemMessage
+
+# Import fluff generator modules
+from src import model_funcs, prompts, retrieval
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', b'_5#y2L"F4Q8z\n\xec]/')
@@ -21,6 +26,69 @@ def index():
 @app.route('/scars_watch')
 def scars_watch():
     return render_template('scars_watch.html')
+
+@app.route('/characters')
+def characters():
+    return render_template('characters.html')
+
+@app.route('/api/fluff/message', methods=['POST'])
+def fluff_message():
+    """API endpoint for fluff generator chat messages."""
+    try:
+        data = request.get_json()
+        user_message = data.get('message', '').strip()
+        message_history = data.get('messages', [])
+
+        if not user_message:
+            return jsonify({'error': 'Empty message'}), 400
+
+        # Initialize messages if empty
+        if not message_history:
+            message_history = [
+                prompts.system_message,
+                prompts.ai_message
+            ]
+
+        # Add user message
+        message_history.append(HumanMessage(content=user_message))
+
+        # Generate response
+        try:
+            model = model_funcs.gemini_model()
+            relevant_history = retrieval.extract_relevant_history(user_message)
+
+            response = model.invoke(
+                message_history + [
+                    HumanMessage(
+                        content=f"The relevant history is: {relevant_history}"
+                    )
+                ]
+            )
+            response_text = response.content
+
+        except Exception as e:
+            response_text = f"Error generating response: {str(e)}"
+
+        # Add assistant message
+        message_history.append({"role": "assistant", "content": response_text})
+
+        return jsonify({
+            'response': response_text,
+            'messages': message_history
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/fluff/reset', methods=['POST'])
+def fluff_reset():
+    """Reset the fluff generator conversation."""
+    return jsonify({
+        'messages': [
+            prompts.system_message,
+            prompts.ai_message
+        ]
+    })
 
 @app.route('/location/<location_id>')
 def location_detail(location_id):
