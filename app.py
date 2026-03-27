@@ -1,7 +1,9 @@
+import os
 from flask import Flask, request, url_for, render_template, redirect, session
 from markupsafe import escape
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', b'_5#y2L"F4Q8z\n\xec]/')
 
 # @app.route("/")
 # def index():
@@ -57,12 +59,18 @@ def projects():
     return 'The projects page'
 
 
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+if __name__ == '__main__':
+    # For Codespaces and local development
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_DEBUG', True)
+    host = os.environ.get('FLASK_HOST', '0.0.0.0')
 
+    with app.test_request_context():
+        print(f"Routes available:")
+        print(f"  {url_for('index')}")
+        print(f"  {url_for('scars_watch')}")
+        print(f"  {url_for('profile', username='sample')}")
 
-
-with app.test_request_context():
-    print(url_for('index'))
-    print(url_for('projects'))
-    print(url_for('profile', username='sam'))
+    print(f"\nStarting Flask app on {host}:{port}")
+    app.run(host=host, port=port, debug=debug)
 

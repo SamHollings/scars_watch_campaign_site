@@ -1,23 +1,354 @@
-<!doctype html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scars Watch Campaign - Map</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: #b0b0b0;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid #ffd700;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            cursor: crosshair;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-fluff {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1a1a2e;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-fluff:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .btn-fluff:active {
+            transform: translateY(0);
+        }
+
+        .location-info {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: #ffd700;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            pointer-events: none;
+            display: none;
+            z-index: 10;
+            border: 1px solid #ffd700;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 215, 0, 0.3);
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
 </head>
-<title>Scars Watch Campaign</title>
-{% if person %}
-  <h1>Welcome back, Commander {{ person }}!</h1>
-{% else %}
-  <h1>The Red Scar Region</h1>
-{% endif %}
 <body>
-    <div class="image-container">
-      <img src="{{ image_url }}" alt="Image from external source", alt="Map of the Red Scar Region", usemap="#systemmap">
-      
-      <span class="image-label" id="scars-watch-label">Scars Watch</span></span>
+    <div class="header">
+        {% if person %}
+            <h1>Welcome back, Commander {{ person }}!</h1>
+        {% else %}
+            <h1>The Red Scar Region</h1>
+        {% endif %}
+        <p>Click on regions to explore, or use the controls below</p>
+    </div>
 
-      <map name = "systemmap">
-        <area shape = "circle" coords="447 424 20", href="{{ url_for('scars_watch') }}"
-      </map>
-      
-    </div> 
+    <div class="map-container">
+        <canvas id="mapCanvas"></canvas>
+        <div class="location-info" id="locationInfo"></div>
+    </div>
 
+    <div class="controls">
+        <button class="btn-fluff" onclick="navigateToFluff()">Launch Fluff Generator</button>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <script>
+        // Map data
+        const mapData = {
+            imageUrl: '{{ image_url }}',
+            locations: [
+                {
+                    name: 'Scars Watch',
+                    x: 0.49,  // percentage from left
+                    y: 0.53,  // percentage from top
+                    radius: 30,
+                    description: 'Strategic command center. Click to view battle reports.',
+                    action: 'fluff'
+                }
+                // Add more locations as needed
+            ]
+        };
+
+        // Canvas setup
+        const canvas = document.getElementById('mapCanvas');
+        const ctx = canvas.getContext('2d');
+        let img = new Image();
+        let clickableRegions = [];
+
+        // Set canvas size
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const rect = container.getBoundingClientRect();
+            const maxWidth = container.clientWidth;
+            const maxHeight = window.innerHeight * 0.6;
+
+            // Maintain aspect ratio - assuming 4:3
+            const aspectRatio = 4 / 3;
+            if (maxWidth / aspectRatio <= maxHeight) {
+                canvas.width = maxWidth;
+                canvas.height = maxWidth / aspectRatio;
+            } else {
+                canvas.height = maxHeight;
+                canvas.width = maxHeight * aspectRatio;
+            }
+
+            drawMap();
+        }
+
+        // Load and draw map
+        img.onload = function() {
+            resizeCanvas();
+        };
+
+        img.onerror = function() {
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ffd700';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Map image not available', canvas.width / 2, canvas.height / 2);
+            drawClickableRegions();
+        };
+
+        img.src = mapData.imageUrl;
+
+        function drawMap() {
+            // Clear canvas
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw image
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // Draw clickable regions
+            drawClickableRegions();
+        }
+
+        function drawClickableRegions() {
+            clickableRegions = [];
+
+            mapData.locations.forEach((location, index) => {
+                const x = location.x * canvas.width;
+                const y = location.y * canvas.height;
+                const radius = location.radius;
+
+                // Draw circle
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Draw inner circle (pulsing effect)
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.1)';
+                ctx.beginPath();
+                ctx.arc(x, y, radius - 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw label
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(x - 60, y + radius + 10, 120, 30);
+                ctx.fillStyle = '#ffd700';
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(location.name, x, y + radius + 30);
+
+                // Store clickable region
+                clickableRegions.push({
+                    x: x,
+                    y: y,
+                    radius: radius,
+                    location: location,
+                    index: index
+                });
+            });
+        }
+
+        // Handle canvas clicks
+        canvas.addEventListener('click', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            for (let region of clickableRegions) {
+                const dist = Math.sqrt(
+                    Math.pow(clickX - region.x, 2) +
+                    Math.pow(clickY - region.y, 2)
+                );
+
+                if (dist < region.radius) {
+                    handleLocationClick(region.location);
+                    return;
+                }
+            }
+        });
+
+        // Handle mouse movement for hover effects
+        canvas.addEventListener('mousemove', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const moveX = e.clientX - rect.left;
+            const moveY = e.clientY - rect.top;
+            let hovering = false;
+
+            for (let region of clickableRegions) {
+                const dist = Math.sqrt(
+                    Math.pow(moveX - region.x, 2) +
+                    Math.pow(moveY - region.y, 2)
+                );
+
+                if (dist < region.radius) {
+                    hovering = true;
+                    canvas.style.cursor = 'pointer';
+                    showLocationInfo(region.location, e.pageX, e.pageY);
+                    break;
+                }
+            }
+
+            if (!hovering) {
+                canvas.style.cursor = 'crosshair';
+                hideLocationInfo();
+            }
+        });
+
+        function showLocationInfo(location, x, y) {
+            const info = document.getElementById('locationInfo');
+            info.textContent = location.description;
+            info.style.left = (x + 10) + 'px';
+            info.style.top = (y - 40) + 'px';
+            info.style.display = 'block';
+        }
+
+        function hideLocationInfo() {
+            document.getElementById('locationInfo').style.display = 'none';
+        }
+
+        function handleLocationClick(location) {
+            if (location.action === 'fluff') {
+                navigateToFluff();
+            }
+        }
+
+        function navigateToFluff() {
+            window.location.href = '{{ url_for("scars_watch") }}';
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', resizeCanvas);
+
+        // Initial setup
+        if (img.complete) {
+            resizeCanvas();
+        }
+    </script>
 </body>
+</html>

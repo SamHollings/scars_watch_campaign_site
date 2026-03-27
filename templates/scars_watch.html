@@ -1,3 +1,161 @@
-<!doctype html>
-<title>Scars Watch System</title>
-<img src="/static/Scars Watch picture.jpeg" alt="scars watch">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scars Watch - Fluff Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 0 10px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            flex: 1;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .btn-back:active {
+            transform: translateY(0);
+        }
+
+        .content {
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid #ffd700;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .content img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .content h2 {
+            margin-top: 20px;
+            margin-bottom: 15px;
+            color: #ffd700;
+            font-size: 1.5em;
+        }
+
+        .content p {
+            line-height: 1.6;
+            color: #d0d0d0;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 4px solid #ffd700;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+                text-align: center;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Scars Watch - Fluff Generator</h1>
+            <button class="btn-back" onclick="backToMap()">← Back to Map</button>
+        </div>
+
+        <div class="content">
+            <img src="/static/Scars Watch picture.jpeg" alt="Scars Watch System">
+
+            <h2>Welcome to the Fluff Generator</h2>
+            <p>This is the Scars Watch system interface where you can generate battle fluff for your Warhammer 40k campaign.</p>
+
+            <div class="info-box">
+                <p><strong>Current System:</strong> Scars Watch Command Center</p>
+                <p>Strategic location for campaign narrative development.</p>
+            </div>
+
+            <h2>Features Coming Soon</h2>
+            <p>Battle report submission form and fluff generation interface will be available here.</p>
+        </div>
+    </div>
+
+    <script>
+        function backToMap() {
+            window.location.href = '{{ url_for("index") }}';
+        }
+    </script>
+</body>
+</html>
