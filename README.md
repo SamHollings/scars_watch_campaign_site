@@ -6,10 +6,14 @@ This is a personal project to make an interactive chat website, which can make b
 
 Currently it consists of a few main parts:
 
-- **app.py**: makes the flask app - the website which users interact with.
-- **fluff-generator.py**: LLM based tool to write ongoing warhammer fluff based on existing notes and future submissions.
-- **model_funcs.py**: Functions to initialise the LLM
-- **prompts.py**: Prompts for the LLM
+- **app.py**: Flask application serving the interactive web interface
+- **templates/**: HTML templates with JavaScript for interactive features
+  - `red_scar_overview.html`: Interactive map interface with fluff generator
+  - `location_detail.html`: Location backstory and events
+  - `characters.html`: Characters and factions in the Red Scar region
+- **src/model_funcs.py**: Functions to initialize the Gemini LLM
+- **src/prompts.py**: System prompts for narrative generation
+- **src/retrieval.py**: Story context retrieval
 
 The intention is that this will generate post battle fluff based on the ongoing story and sides 
 invovled in our battles.
@@ -38,24 +42,39 @@ Assets:
 - You will needs a local .env file with appropriate keys - see **.env_example**
 
 ## Instructions
-### Running the dev app (in streamlit)
-- in the terminal run:  python -m streamlit run fluff_generator.py
 
-### Building the docker image:
-`docker build -t flask-app .`
+### Quick Start (Development)
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-### Run the docker image:
-`docker run -d -p 5000:8000 flask-app`
+# Set up environment
+cp .env_example .env
+# Edit .env with your GEMINI_API_KEY
 
-See the website at: `localhost:5000`
+# Run the Flask app
+python app.py
+```
 
-### Dev
+Then open http://localhost:5000 in your browser.
 
-To run the flask app on it's inbuilt dev server:
-`python -m flask run`
+### Production (Gunicorn)
+```bash
+python -m gunicorn --workers=3 --bind 0.0.0.0:8000 app:app
+```
 
-To run the flask app on the gunicorn server:
-`python -m gunicorn --workers=3 --bind 0.0.0.0:8000 app:app --daemon`
+To stop gunicorn: `pkill -f gunicorn`
 
-you can kill the gunicorn server with:
-`pkill -f gunicorn`
+### Docker
+
+Build:
+```bash
+docker build -t scars-watch .
+```
+
+Run:
+```bash
+docker run -d -p 5000:8000 -e GEMINI_API_KEY=your_key scars-watch
+```
+
+Visit http://localhost:5000

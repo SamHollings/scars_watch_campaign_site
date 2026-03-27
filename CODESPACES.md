@@ -1,54 +1,26 @@
 # Running in GitHub Codespaces
 
-This project is fully configured to run in GitHub Codespaces. Follow these steps to get started:
+This project is fully configured to run in GitHub Codespaces with a single Flask application. Follow these steps:
 
-## Quick Start - Option 1: Both Services (Recommended)
+## Quick Start
 
 1. **Open in Codespaces**
    - Go to the repository on GitHub
    - Click `Code` → `Codespaces` → `Create codespace on main`
    - Wait for the environment to initialize (this will take a minute or two)
 
-2. **Start Both Services**
-   - In the terminal, run:
-     ```bash
-     python run_all.py
-     ```
-   - Wait for output showing both services have started
-
-3. **Access the App**
-   - Click the "Ports" tab at the bottom of the screen
-   - You should see ports 5000 and 8501 forwarded
-   - Click on port 5000 to open the map interface
-   - Click the "Launch Streamlit Fluff Generator" button to access Streamlit
-
-## Quick Start - Option 2: Flask Only
-
-1. **Start Flask**
+2. **Start the Flask App**
    - In the terminal, run:
      ```bash
      python app.py
      ```
+   - Wait for output showing the Flask server has started on port 5000
 
-2. **Access the Map**
-   - Click the "Ports" tab and open port 5000
-   - The map interface will load
-
-## Quick Start - Option 3: Run Services Separately
-
-If you prefer to manage services in separate terminals:
-
-**Terminal 1 - Flask:**
-```bash
-python app.py
-```
-
-**Terminal 2 - Streamlit:**
-```bash
-streamlit run fluff_generator.py --server.port 8501
-```
-
-Both will be accessible via the Ports tab (5000 for Flask, 8501 for Streamlit).
+3. **Access the App**
+   - Click the "Ports" tab at the bottom of the screen
+   - You should see port 5000 forwarded
+   - Click on port 5000 to open the map interface
+   - All features (fluff generator, locations, characters) are accessible directly
 
 ## Features
 
@@ -57,56 +29,45 @@ Both will be accessible via the Ports tab (5000 for Flask, 8501 for Streamlit).
 - **Responsive design** that works on desktop and mobile
 - **Golden-themed UI** matching the Warhammer 40k aesthetic
 
-### Navigation
-- **"Launch Streamlit Fluff Generator"** button on the fluff generator page
-- **"← Back to Map"** button on all pages
-- Smooth transitions between pages
-- Automatic Streamlit detection and status messages
+### Location System
+- **Click locations to view details** in a side panel
+- **Backstory and event timeline** for each region
+- **5 major locations** with full lore
+
+### Characters Page
+- **Named characters and factions** from the story
+- **Imperial, Chaos, and Xenos** faction pages
+- **Detailed character backgrounds** and roles
 
 ### Fluff Generator
-- **Streamlit-powered interface** for battle report submission
-- **AI-generated narrative** using LLM integration
-- **Session management** for multi-turn conversations
-- **Integration with ongoing story** for campaign continuity
-
-## Alternative: Streamlit Dev Mode
-
-If you prefer to use Streamlit for development:
-
-```bash
-python -m streamlit run fluff-generator.py --server.port 5000
-```
+- **Inline modal interface** for battle report submission
+- **AI-generated narrative** using Claude Gemini API
+- **Chat-based conversation** with story context
+- **Session history** maintained during play
 
 ## Troubleshooting
 
-### Streamlit Button Shows "Not Running"
-This means Streamlit is not accessible on port 8501. Solutions:
-
-1. **Start Streamlit in a separate terminal:**
-   ```bash
-   streamlit run fluff_generator.py --server.port 8501
-   ```
-
-2. **Or use the combined launcher:**
-   ```bash
-   python run_all.py
-   ```
-
-3. **Check if Streamlit is running:**
-   - Open the Ports tab
-   - Look for port 8501
-   - If not visible, Streamlit hasn't started
-
-### Port Already in Use
-If port 5000 is already in use, specify a different port:
+### Flask App Won't Start
+If you see connection errors, the port might be in use:
 ```bash
 PORT=8000 python app.py
 ```
 
-For Streamlit, use:
-```bash
-streamlit run fluff_generator.py --server.port 8000
-```
+### Fluff Generator Shows Error
+This means the API key is missing or invalid:
+
+1. **Check your `.env` file:**
+   ```bash
+   cat .env
+   ```
+
+2. **Set up `.env` from template:**
+   ```bash
+   cp .env_example .env
+   # Edit .env with your GEMINI_API_KEY
+   ```
+
+3. **Verify the key works** by trying a fluff generator message
 
 ### Dependencies Missing
 The devcontainer automatically installs dependencies. If you need to manually install:
@@ -115,19 +76,17 @@ pip install -e .
 pip install -r requirements.txt
 ```
 
-### Streamlit Errors
-If you see "ModuleNotFoundError" for streamlit components:
-```bash
-pip install streamlit
-pip install langchain langchain-google-genai google-genai
-```
-
 ### Environment Variables
-Set environment variables in the Codespaces environment or create a `.env` file (copy from `.env_example`):
+Create a `.env` file with required API keys:
 ```bash
 cp .env_example .env
-# Edit .env with your API keys (especially GEMINI_API_KEY)
+# Edit .env with your GEMINI_API_KEY
 ```
+
+### Sidebar Won't Open
+- Clear browser cache (Ctrl+Shift+Delete)
+- Refresh the page (Ctrl+F5)
+- Check browser console for JavaScript errors (F12)
 
 ## Development Tips
 
